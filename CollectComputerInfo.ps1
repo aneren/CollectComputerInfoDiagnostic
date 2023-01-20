@@ -17,8 +17,6 @@ TO ADD:
 - Collect running services & port numbers
 - Possibly add ability to automatically elevate to administrator
 
-TEST Change 55577
-
 #>
 
 $ScriptVer = "1.0"

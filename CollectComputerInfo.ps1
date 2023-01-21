@@ -19,7 +19,7 @@ TO ADD:
 
 #>
 
-$ScriptVer = "1.0"
+$ScriptVer = "1.0.1"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -43,6 +43,7 @@ if (!(Test-Path -PathType Container $eventLogPath )) {
 #######################
 Write-Host -ForegroundColor Green "Collecting OS information..."
 Write-Output "Computer Name: $env:COMPUTERNAME" | Out-File $logFile -Append
+
 $computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Windowsversion,WindowsEditionId
 Write-Output $Computer | Out-File $logFile -Append
 
@@ -117,18 +118,20 @@ $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connecte
 #######################
 Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes"
 $events = wevtutil.exe el
+Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures
 $i=0
 foreach ($event in $events) {
     $eventPath = New-Item -Path $eventLogPath\$event -ItemType Directory
     $eventName = $event | Split-Path -Leaf
-    wevtutil.exe epl $event $eventPath\$eventName.evtx #Exports the event logs
-    wevtutil.exe al $EventPath\$EventName.evtx /l:en-US #Archives the event logs with LocaleMetaData in en-US locale
+    wevtutil.exe epl $event $eventPath\$eventName.evtx
+    wevtutil.exe al $EventPath\$EventName.evtx /l:en-US
     $i++
     Write-Progress -Activity "Collecting Windows event logs..." -CurrentOperation "Collecting $event" -Status "Progress:" -PercentComplete (($i/$events.Count) * 100)
 }
 
 #######################
 # COMPRESS COLLECTED DATA TO ARCHIVE
+
 #######################
 Write-Host -ForegroundColor Blue "Compressing collected information into ZIP archive."
 
@@ -152,7 +155,7 @@ Finally {
 $archivePath = Get-ChildItem $logPath\* -Include *.zip | Where-Object {$_.Name -like 'CollectComputerInfo_*'} | Sort-Object CreationTime -Descending | Select-Object -First 1
 
 #######################
-# CLEANUP
+# CLEANUP STEP
 #######################
 Write-Host -ForegroundColor Red "Removing uncompressed files from $logPath"
 

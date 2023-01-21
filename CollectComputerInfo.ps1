@@ -85,7 +85,6 @@ foreach ($volume in $bitLockerVolumes) {
 #######################
 # WINDOWS DEDUPLICATION STATUS
 #######################
-Write-Host -ForegroundColor Green "Checking if Windows Deduplication is enabled for any volumes..."
 if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
     Write-Host -ForegroundColor Green "Checking if Windows Deduplication role is installed..."
     $dedupe = (Get-WindowsFeature -Name FS-Data-Deduplication).installed
@@ -100,7 +99,8 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
     }
 }
 else {
-    Write-Output `n`n`n"Windows Deduplication role is either not installed or is not available" | Out-File $logFile -Append
+    Write-Host -ForegroundColor Orange "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
+    Write-Output `n`n`n"Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
 }
 
 #######################

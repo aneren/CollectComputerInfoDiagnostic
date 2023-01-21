@@ -19,7 +19,7 @@ TO ADD:
 
 #>
 
-$ScriptVer = "1.1"
+$ScriptVer = "1.2"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -47,10 +47,15 @@ Write-Output "Computer Name: $env:COMPUTERNAME" | Out-File $logFile -Append
 $computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Windowsversion,WindowsEditionId
 Write-Output $Computer | Out-File $logFile -Append
 
-Write-Host -ForegroundColor Green "Collecting installed programs and currently loaded filter drivers..."
+Write-Host -ForegroundColor Green "Collecting installed programs..."
 
-Write-Output "Installed Programs" | Sort-Object Name | Out-File $logFile -Append
+Write-Output "Installed Programs according to Win32_Product" | Sort-Object Name | Out-File $logFile -Append
 $installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object name,Vendor,Version | Format-Table -Autosize | Out-File $logFile -Append
+
+Write-Output "Installed Programs according to HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Sort-Object Name | Out-File $logFile -Append
+$installedProgramsRegistry = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize | Out-File $logFile -Append
+
+Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append
 $drivers = fltmc.exe | Out-File $logFile -Append
 
@@ -107,9 +112,9 @@ else {
 # NIC INFORMATION
 #######################
 Write-Host -ForegroundColor Green "Collecting NIC configuration information..."
-Write-Output `n "NIC Configuration (IPv4 addresses- Connected NICs ONLY)" | Out-File $logFile -Append
+Write-Output `n "NIC Configuration (IPv4 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
 $IPv4Addresses = Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
-Write-Output `n "NIC Configuration (IPv6 addresses- Connected NICs ONLY)" | Out-File $logFile -Append
+Write-Output `n "NIC Configuration (IPv6 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
 $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 
 
@@ -131,7 +136,6 @@ foreach ($event in $events) {
 
 #######################
 # COMPRESS COLLECTED DATA TO ARCHIVE
-
 #######################
 Write-Host -ForegroundColor Blue "Compressing collected information into ZIP archive."
 

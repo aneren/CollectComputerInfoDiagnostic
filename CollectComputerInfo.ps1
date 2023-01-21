@@ -99,7 +99,7 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
     }
 }
 else {
-    Write-Host -ForegroundColor Orange "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
+    Write-Host -ForegroundColor Magenta "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
     Write-Output `n`n`n"Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
 }
 

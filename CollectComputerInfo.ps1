@@ -1,5 +1,5 @@
 <#
-Script version 1.0, written by Paul Loewenkamp
+Written by Paul Loewenkamp
 
 Script must be ran from an elevated PowerShell session or some data may not be properly collected. 
 
@@ -19,7 +19,7 @@ TO ADD:
 
 #>
 
-$ScriptVer = "1.0.1"
+$ScriptVer = "1.1"
 
 #######################
 # CREATE LOG FILE DIRECTORIES

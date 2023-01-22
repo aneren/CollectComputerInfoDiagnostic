@@ -18,6 +18,7 @@ TO ADD:
 - Possibly add ability to automatically elevate to administrator
 
 #Requires -Version 5.1
+#Requires -RunAsAdministrator
 
 #>
 

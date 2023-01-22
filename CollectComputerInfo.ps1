@@ -58,11 +58,21 @@ Write-Output $Computer | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting installed programs..."
 
-Write-Output "Installed Programs according to Win32_Product" | Sort-Object Name | Out-File $logFile -Append
+Write-Output "Installed programs according to Win32_Product WMI class" | Sort-Object Name | Out-File $logFile -Append
 $installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object name,Vendor,Version | Format-Table -Autosize | Out-File $logFile -Append
 
-Write-Output "Installed Programs according to HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Sort-Object Name | Out-File $logFile -Append
-$installedProgramsRegistry = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize | Out-File $logFile -Append
+Write-Output "Installed programs according to registry" | Sort-Object Name | Out-File $logFile -Append
+$regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" #32-bit programs on 64 bit OS
+
+$regInstalledPrograms= @(
+    'DisplayName',
+    'Publisher',
+    'DisplayVersion',
+    'UninstallString'
+)
+
+Get-ItemProperty $regPaths | Select-Object $regInstalledPrograms | Format-Table -AutoSize | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append

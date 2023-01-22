@@ -17,18 +17,18 @@ TO ADD:
 - Collect running services & port numbers
 - Possibly add ability to automatically elevate to administrator
 
+#Requires -Version 5.1
+
 #>
 
 $ScriptVer = "1.3"
 
 # Self-elevate the script if required
-if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-    if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
-     $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-     Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
-     Exit
-    }
-}
+<#
+$userId = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+$userPrincipal = New-Object System.Security.Principal.WindowsPrincipal($userId)
+$adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
+#>
 
 #######################
 # CREATE LOG FILE DIRECTORIES

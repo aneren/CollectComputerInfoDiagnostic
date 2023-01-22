@@ -5,7 +5,7 @@ Script must be ran from an elevated PowerShell session or some data may not be p
 
 This script collects basic information about Windows computers in order to facilitate more efficient troubleshooting. It collects the following:
 - Windows OS information
-- Installed Programs
+- Installed Programs (pulls from both Win32_Product WMI class and two locations in the registry)
 - Currently loaded filter drivers
 - Information about disks, volumes, and volume cluster sizes
 - Whether or not BitLocker is enabled on volumes
@@ -60,7 +60,7 @@ Write-Output $Computer | Out-File $logFile -Append
 Write-Host -ForegroundColor Green "Collecting installed programs..."
 
 Write-Output "Installed programs according to Win32_Product WMI class" | Sort-Object Name | Out-File $logFile -Append
-$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object name,Vendor,Version | Format-Table -Autosize | Out-File $logFile -Append
+$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Format-Table -Autosize | Out-File $logFile -Append
 
 Write-Output "Installed programs according to registry" | Sort-Object Name | Out-File $logFile -Append
 $regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs

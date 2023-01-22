@@ -17,6 +17,8 @@ TO ADD:
 - Collect running services & port numbers
 - Possibly add ability to automatically elevate to administrator
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
 #>
 
 $ScriptVer = "1.2"

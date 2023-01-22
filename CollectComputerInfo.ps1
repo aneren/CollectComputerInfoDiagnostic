@@ -16,8 +16,12 @@ This script collects basic information about Windows computers in order to facil
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 #>
+param (
+    [Parameter(Mandatory = $false)]
+    [switch]$allEvents
+)
 
-$ScriptVer = "1.3"
+$ScriptVer = "1.4"
 
 # Self-elevate the script if required
 <#
@@ -132,21 +136,39 @@ $IPv4Addresses = Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connect
 Write-Output `n "NIC Configuration (IPv6 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
 $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 
-
 #######################
 # EVENT LOG COLLECTION
 #######################
-Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes"
 Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures on prior attempts
-$events = wevtutil.exe el
-$i=0
-foreach ($event in $events) {
-    $eventPath = New-Item -Path $eventLogPath\$event -ItemType Directory
-    $eventName = $event | Split-Path -Leaf
-    wevtutil.exe epl $event $eventPath\$eventName.evtx
-    wevtutil.exe al $EventPath\$EventName.evtx /l:en-US
-    $i++
-    Write-Progress -Activity "Collecting Windows event logs..." -CurrentOperation "Collecting $event" -Status "Progress:" -PercentComplete (($i/$events.Count) * 100)
+
+if ($allEvents.IsPresent) {
+    Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes"
+    $events = wevtutil.exe el
+    $i=0
+    foreach ($event in $events) {
+        $eventPath = New-Item -Path $eventLogPath\$event -ItemType Directory
+        $eventName = $event | Split-Path -Leaf
+        wevtutil.exe epl $event $eventPath\$eventName.evtx
+        wevtutil.exe al $EventPath\$EventName.evtx /l:en-US
+        $i++
+        Write-Progress -Activity "Collecting Windows event logs..." -CurrentOperation "Collecting $event" -Status "Progress:" -PercentComplete (($i/$events.Count) * 100)
+    }
+}
+else {
+    Write-Host -ForegroundColor Green "Collecting Windows Application and Windows System event logs"
+    $events = @(
+        "Application",
+        "System"
+    )
+    $i=0
+    foreach ($event in $events) {
+        $eventPath = New-Item -Path $eventLogPath\$event -ItemType Directory
+        $eventName = $event | Split-Path -Leaf
+        wevtutil.exe epl $event $eventPath\$eventName.evtx
+        wevtutil.exe al $EventPath\$EventName.evtx /l:en-US
+        $i++
+        Write-Progress -Activity "Collecting Windows event logs..." -CurrentOperation "Collecting $event" -Status "Progress:" -PercentComplete (($i/$events.Count) * 100)
+    }
 }
 
 #######################
@@ -176,7 +198,7 @@ $archivePath = Get-ChildItem $logPath\* -Include *.zip | Where-Object {$_.Name -
 #######################
 # CLEANUP STEP
 #######################
-Write-Host -ForegroundColor Red "Removing uncompressed files from $logPath"
+Write-Host -ForegroundColor Red "Cleaning up files in $logPath"
 
 Try{
     Remove-Item $logPath\*.txt
@@ -191,5 +213,6 @@ Finally {
 }
 
 Write-Host -ForegroundColor Yellow "Script has completed. Please upload the ZIP file located at this location: $archivePath"
+Explorer.exe $logPath
 
 

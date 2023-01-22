@@ -142,7 +142,7 @@ $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connecte
 # EVENT LOG COLLECTION
 #######################
 Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes"
-Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures
+Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures on prior attempts
 $events = wevtutil.exe el
 $i=0
 foreach ($event in $events) {

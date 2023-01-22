@@ -5,7 +5,7 @@ Script must be ran from an elevated PowerShell session or some data may not be p
 
 This script collects basic information about Windows computers in order to facilitate more efficient troubleshooting. It collects the following:
 - Windows OS information
-- Installed Programs
+- Installed Programs (pulls from both Win32_Product WMI class and two locations in the registry)
 - Currently loaded filter drivers
 - Information about disks, volumes, and volume cluster sizes
 - Whether or not BitLocker is enabled on volumes
@@ -17,7 +17,14 @@ This script collects basic information about Windows computers in order to facil
 #Requires -RunAsAdministrator
 #>
 
-$ScriptVer = "1.2"
+$ScriptVer = "1.3"
+
+# Self-elevate the script if required
+<#
+$userId = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+$userPrincipal = New-Object System.Security.Principal.WindowsPrincipal($userId)
+$adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
+#>
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -47,11 +54,21 @@ Write-Output $Computer | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting installed programs..."
 
-Write-Output "Installed Programs according to Win32_Product" | Sort-Object Name | Out-File $logFile -Append
-$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object name,Vendor,Version | Format-Table -Autosize | Out-File $logFile -Append
+Write-Output "Installed programs according to Win32_Product WMI class" | Sort-Object Name | Out-File $logFile -Append
+$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Format-Table -Autosize | Out-File $logFile -Append
 
-Write-Output "Installed Programs according to HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall" | Sort-Object Name | Out-File $logFile -Append
-$installedProgramsRegistry = Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate | Format-Table –AutoSize | Out-File $logFile -Append
+Write-Output "Installed programs according to registry" | Sort-Object Name | Out-File $logFile -Append
+$regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" #32-bit programs on 64 bit OS
+
+$regInstalledPrograms= @(
+    'DisplayName',
+    'Publisher',
+    'DisplayVersion',
+    'UninstallString'
+)
+
+Get-ItemProperty $regPaths | Select-Object $regInstalledPrograms | Format-Table -AutoSize | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append
@@ -120,7 +137,7 @@ $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connecte
 # EVENT LOG COLLECTION
 #######################
 Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes"
-Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures
+Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures on prior attempts
 $events = wevtutil.exe el
 $i=0
 foreach ($event in $events) {

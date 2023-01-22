@@ -13,10 +13,6 @@ This script collects basic information about Windows computers in order to facil
 - NIC and IPv4/IPv6 information
 - All Windows Event logs in EVTX format along with the LocaleMetaData
 
-TO ADD:
-- Collect running services & port numbers
-- Possibly add ability to automatically elevate to administrator
-
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 #>

@@ -209,7 +209,7 @@ $archivePath = Get-ChildItem $logPath\* -Include *.zip | Where-Object {$_.Name -
 #######################
 # CLEANUP STEP
 #######################
-Write-Host -ForegroundColor Red "Cleaning up temp files in $logPath"
+Write-Host -ForegroundColor Green "Cleaning up temp files in $logPath"
 
 Try{
     Remove-Item $logPath\*.txt

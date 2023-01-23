@@ -54,20 +54,6 @@ Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append
 $drivers = fltmc.exe | Out-File $logFile -Append
 
 #######################
-# DISK, VOLUME, AND PARTITION INFORMATION
-#######################
-Write-Host -ForegroundColor Green "Collecting disk,volume, and partition information..."
-Write-Output `n "Disks visible to the Operating System" | Out-File $logFile -Append
-$disks = Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
-Write-Output `n "Volumes visible to the Operating System" | Out-File $logFile -Append
-$volumes = Get-Volume | Out-File $logFile -Append
-Write-Output `n "Volume cluster (block) sizes" | Out-File $logFile -Append
-$clusterSize = Get-CimInstance -ClassName Win32_Volume | Select-Object DriveLetter,Name,Label,BlockSize | Format-Table -Autosize | Out-File $logFile -Append
-Write-Output `n "Partition information" | Out-File $logFile -Append
-$partitions = Get-Partition | Out-File $logFile -Append
-Write-Output `n | Out-File $logFile -Append
-
-#######################
 # WINDOWS DEDUPLICATION STATUS
 #######################
 if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
@@ -116,6 +102,20 @@ else {
     Write-Host -ForegroundColor Red "BitLocker is not installed."
     Write-Output `n "BitLocker is not installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe" | Out-File $logFile -Append
 }
+
+#######################
+# DISK, VOLUME, AND PARTITION INFORMATION
+#######################
+Write-Host -ForegroundColor Green "Collecting disk,volume, and partition information..."
+Write-Output `n "Disks visible to the Operating System" | Out-File $logFile -Append
+$disks = Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
+Write-Output `n "Volumes visible to the Operating System" | Out-File $logFile -Append
+$volumes = Get-Volume | Out-File $logFile -Append
+Write-Output `n "Volume cluster (block) sizes" | Out-File $logFile -Append
+$clusterSize = Get-CimInstance -ClassName Win32_Volume | Select-Object DriveLetter,Name,Label,BlockSize | Format-Table -Autosize | Out-File $logFile -Append
+Write-Output `n "Partition information" | Out-File $logFile -Append
+$partitions = Get-Partition | Out-File $logFile -Append
+Write-Output `n | Out-File $logFile -Append
 
 #######################
 # NIC INFORMATION

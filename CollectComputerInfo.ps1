@@ -65,22 +65,22 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
     Write-Host -ForegroundColor Green "Checking if Windows Deduplication role is installed..."
     $dedupe = (Get-WindowsFeature -Name FS-Data-Deduplication).installed
     if ($dedupe) {
-        Write-Output `n`n`n"Windows Deduplication role is installed on $env:COMPUTERNAME" | Out-File $logFile -Append
+        Write-Output `n`n"Windows Deduplication role is installed on $env:COMPUTERNAME" | Out-File $logFile -Append
         $dedupedVolumes = Get-DedupVolume
         foreach ($volume in $dedupedVolumes) {
             if ($volume.Enabled) {
-                Write-Output "Deduplication enabled on volume" $volume.Volume | Out-File $logFile -Append
+                Write-Output `n"Deduplication is enabled on volume" $volume.Volume | Out-File $logFile -Append
             }
         }
     }
     else {
         Write-Host -ForegroundColor Red "Windows Deduplication is not installed."
-        Write-Output `n`n`n"Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
+        Write-Output `n`n"Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
     }
 }
 else {
     Write-Host -ForegroundColor Red "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
-    Write-Output `n`n`n"Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
+    Write-Output `n`n"Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
 }
 
 #######################

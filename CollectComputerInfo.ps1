@@ -83,6 +83,7 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
         }
     }
     else {
+        Write-Host -ForegroundColor Red "Windows Deduplication is not installed."
         Write-Output "Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
     }
 }
@@ -112,7 +113,7 @@ elseif (Get-ChildItem -Path "C:\Windows\System32\manage-bde.exe" -ErrorAction Si
     manage-bde.exe -status | Out-File $logFile -Append
 }
 else {
-    Write-Host -ForegroundColor Red "BitLocker is not installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe"
+    Write-Host -ForegroundColor Red "BitLocker is not installed."
     Write-Output `n "BitLocker is not installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe" | Out-File $logFile -Append
 }
 

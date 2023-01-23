@@ -55,8 +55,8 @@ $computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Wind
 Write-Output $Computer | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
-Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append
-$drivers = fltmc.exe | Out-File $logFile -Append
+Write-Output "Loaded filter drivers" | Out-File $logFile -Append
+fltmc.exe | Out-File $logFile -Append
 
 #######################
 # WINDOWS DEDUPLICATION STATUS
@@ -113,13 +113,13 @@ else {
 #######################
 Write-Host -ForegroundColor Green "Collecting disk,volume, and partition information..."
 Write-Output `n "Disks visible to the Operating System" | Out-File $logFile -Append
-$disks = Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
+Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
 Write-Output `n "Volumes visible to the Operating System" | Out-File $logFile -Append
-$volumes = Get-Volume | Out-File $logFile -Append
+Get-Volume | Out-File $logFile -Append
 Write-Output `n "Volume cluster (block) sizes" | Out-File $logFile -Append
-$clusterSize = Get-CimInstance -ClassName Win32_Volume | Select-Object DriveLetter,Name,Label,BlockSize | Format-Table -Autosize | Out-File $logFile -Append
+Get-CimInstance -ClassName Win32_Volume | Select-Object DriveLetter,Name,Label,BlockSize | Format-Table -Autosize | Out-File $logFile -Append
 Write-Output `n "Partition information" | Out-File $logFile -Append
-$partitions = Get-Partition | Out-File $logFile -Append
+Get-Partition | Out-File $logFile -Append
 Write-Output `n | Out-File $logFile -Append
 
 #######################
@@ -127,9 +127,9 @@ Write-Output `n | Out-File $logFile -Append
 #######################
 Write-Host -ForegroundColor Green "Collecting NIC configuration information..."
 Write-Output `n "NIC Configuration (IPv4 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
-$IPv4Addresses = Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 Write-Output `n "NIC Configuration (IPv6 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
-$IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 
 #######################
 # INSTALLED PROGRAMS
@@ -137,7 +137,7 @@ $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connecte
 Write-Host -ForegroundColor Green "Collecting installed programs..."
 
 Write-Output "Installed programs according to Win32_Product WMI class" | Out-File $logFile -Append
-$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Sort-Object Name | Format-Table -Autosize | Out-File $logFile -Append
+Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Sort-Object Name | Format-Table -Autosize | Out-File $logFile -Append
 
 Write-Output "Installed programs according to registry" | Out-File $logFile -Append
 $regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs

@@ -78,7 +78,7 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
         $dedupedVolumes = Get-DedupVolume
         foreach ($volume in $dedupedVolumes) {
             if ($volume.Enabled) {
-                Write-Output "Deduplication enabled on volume $volume.Volume"
+                Write-Output "Deduplication enabled on volume $volume.Volume" | Out-File $logFile -Append
             }
         }
     }

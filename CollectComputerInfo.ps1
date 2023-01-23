@@ -26,7 +26,7 @@ param (
     [switch]$allEvents
 )
 
-$ScriptVer = "1.0.2"
+$ScriptVer = "1.0.3"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -127,9 +127,9 @@ Write-Output `n | Out-File $logFile -Append
 #######################
 Write-Host -ForegroundColor Green "Collecting NIC configuration information..."
 Write-Output `n "NIC Configuration (IPv4 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
-Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 Write-Output `n "NIC Configuration (IPv6 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
-Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 
 #######################
 # INSTALLED PROGRAMS

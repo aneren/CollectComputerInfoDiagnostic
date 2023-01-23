@@ -11,7 +11,8 @@ This script collects basic information about Windows computers in order to facil
 - Whether or not BitLocker is enabled on volumes
 - Whether or not the Windows deduplication role is installed
 - NIC and IPv4/IPv6 information
-- All Windows Event logs in EVTX format along with the LocaleMetaData
+- Collects Windows Application & System event logs in EVTX format with LocaleMetaData (default)
+- All Windows Event logs in EVTX format with LocaleMetaData (with the -allEvents parameter)
 
 #Requires -Version 5.1
 #Requires -RunAsAdministrator

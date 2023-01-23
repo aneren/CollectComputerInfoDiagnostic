@@ -1,3 +1,5 @@
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
 <#
 Written by Paul Loewenkamp
 
@@ -13,9 +15,6 @@ This script collects basic information about Windows computers in order to facil
 - NIC and IPv4/IPv6 information
 - Collects Windows Application & System event logs in EVTX format with LocaleMetaData (default)
 - All Windows Event logs in EVTX format with LocaleMetaData (with the -allEvents parameter)
-
-#Requires -Version 5.1
-#Requires -RunAsAdministrator
 #>
 param (
     [Parameter(Mandatory = $false)]

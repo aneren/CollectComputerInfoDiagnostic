@@ -21,7 +21,7 @@ param (
     [switch]$allEvents
 )
 
-$ScriptVer = "1.4"
+$ScriptVer = "1.0.1"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -41,31 +41,13 @@ if (!(Test-Path -PathType Container $eventLogPath )) {
 }
 
 #######################
-# OPERATING SYSTEM, INSTALLED PROGRAMS, & FLTMC
+# OPERATING SYSTEM & FLTMC
 #######################
 Write-Host -ForegroundColor Green "Collecting OS information..."
 Write-Output "Computer Name: $env:COMPUTERNAME" | Out-File $logFile -Append
 
 $computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Windowsversion,WindowsEditionId
 Write-Output $Computer | Out-File $logFile -Append
-
-Write-Host -ForegroundColor Green "Collecting installed programs..."
-
-Write-Output "Installed programs according to Win32_Product WMI class" | Out-File $logFile -Append
-$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Sort-Object Name | Format-Table -Autosize | Out-File $logFile -Append
-
-Write-Output "Installed programs according to registry" | Out-File $logFile -Append
-$regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs
-    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" #32-bit programs on 64 bit OS
-
-$regInstalledPrograms= @(
-    'DisplayName',
-    'Publisher',
-    'DisplayVersion',
-    'UninstallString'
-)
-
-Get-ItemProperty $regPaths | Select-Object $regInstalledPrograms | Sort-Object DisplayName | Format-Table -AutoSize | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append
@@ -86,20 +68,6 @@ $partitions = Get-Partition | Out-File $logFile -Append
 Write-Output `n | Out-File $logFile -Append
 
 #######################
-# BITLOCKER STATUS
-#######################
-Write-Host -ForegroundColor Green "Checking if BitLocker is enabled for any volumes..."
-$bitLockerVolumes = Get-BitLockervolume
-foreach ($volume in $bitLockerVolumes) {
-    if ($volume.ProtectionStatus -eq "On") {
-        Write-Output `n "Bitlocker is enabled on volume" $volume.MountPoint | Out-File $logFile -Append
-    }
-    else {
-        Write-Output `n "Bitlocker is NOT enabled on volume" $volume.MountPoint | Out-File $logFile -Append
-    }
-}
-
-#######################
 # WINDOWS DEDUPLICATION STATUS
 #######################
 if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
@@ -114,10 +82,38 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
             }
         }
     }
+    else {
+        Write-Output "Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
+    }
 }
 else {
     Write-Host -ForegroundColor Magenta "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
     Write-Output `n`n`n"Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
+}
+
+#######################
+# BITLOCKER STATUS
+#######################
+if (Get-Command -Name Get-BitLockerVolume -ErrorAction SilentlyContinue) {
+    Write-Host -ForegroundColor Green "Checking if BitLocker is enabled for any volumes..."
+    $bitLockerVolumes = Get-BitLockervolume
+    foreach ($volume in $bitLockerVolumes) {
+        if ($volume.ProtectionStatus -eq "On") {
+            Write-Output `n "Bitlocker is enabled on volume" $volume.MountPoint | Out-File $logFile -Append
+        }
+        else {
+            Write-Output `n "Bitlocker is NOT enabled on volume" $volume.MountPoint | Out-File $logFile -Append
+        }
+    }
+}
+elseif (Get-ChildItem -Path "C:\Windows\System32\manage-bde.exe" -ErrorAction SilentlyContinue) {
+    Write-Host -ForegroundColor Green "Checking if BitLocker is enabled for any volumes with manage-bde.exe utility..."
+    Write-Output `n "Bitlocker Information obtained with manage-bde.exe " | Out-File $logFile -Append
+    manage-bde.exe -status | Out-File $logFile -Append
+}
+else {
+    Write-Host -ForegroundColor Red "BitLocker is not installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe"
+    Write-Output `n "BitLocker is not installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe" | Out-File $logFile -Append
 }
 
 #######################
@@ -128,6 +124,27 @@ Write-Output `n "NIC Configuration (IPv4 addresses - Connected NICs ONLY)" | Out
 $IPv4Addresses = Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
 Write-Output `n "NIC Configuration (IPv6 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
 $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,AddressFamily,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+
+#######################
+# INSTALLED PROGRAMS
+#######################
+Write-Host -ForegroundColor Green "Collecting installed programs..."
+
+Write-Output "Installed programs according to Win32_Product WMI class" | Out-File $logFile -Append
+$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Sort-Object Name | Format-Table -Autosize | Out-File $logFile -Append
+
+Write-Output "Installed programs according to registry" | Out-File $logFile -Append
+$regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" #32-bit programs on 64 bit OS
+
+$regInstalledPrograms= @(
+    'DisplayName',
+    'Publisher',
+    'DisplayVersion',
+    'UninstallString'
+)
+
+Get-ItemProperty $regPaths | Select-Object $regInstalledPrograms | Sort-Object DisplayName | Format-Table -AutoSize | Out-File $logFile -Append
 
 #######################
 # EVENT LOG COLLECTION

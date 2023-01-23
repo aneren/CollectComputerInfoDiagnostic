@@ -98,7 +98,7 @@ Write-Output `n | Out-File $logFile -Append
 Write-Host -ForegroundColor Green "Checking if BitLocker is enabled for any volumes..."
 $bitLockerVolumes = Get-BitLockervolume
 foreach ($volume in $bitLockerVolumes) {
-    if ($bitLockerVolumes.ProtectionStatus -eq "ON") {
+    if ($volume.ProtectionStatus -eq "On") {
         Write-Output `n "Bitlocker is enabled on volume" $volume.MountPoint | Out-File $logFile -Append
     }
     else {

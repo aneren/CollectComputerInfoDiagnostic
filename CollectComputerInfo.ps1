@@ -83,7 +83,7 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
         }
     }
     else {
-        Write-Host -ForegroundColor Red "Windows Deduplication is not installed."
+        Write-Host -ForegroundColor Magenta "Windows Deduplication is not installed."
         Write-Output "Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
     }
 }

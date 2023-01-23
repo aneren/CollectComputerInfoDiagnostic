@@ -21,7 +21,7 @@ param (
     [switch]$allEvents
 )
 
-$ScriptVer = "1.0.1"
+$ScriptVer = "1.0.2"
 
 #######################
 # CREATE LOG FILE DIRECTORIES

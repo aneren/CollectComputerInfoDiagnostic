@@ -15,6 +15,11 @@ This script collects basic information about Windows computers in order to facil
 - NIC and IPv4/IPv6 information
 - Collects Windows Application & System event logs in EVTX format with LocaleMetaData (default)
 - All Windows Event logs in EVTX format with LocaleMetaData (with the -allEvents parameter)
+
+Execute script by navigating to the folder containing it inside of an elevated PowerShell session, and then calling it using either method below:
+.\CollectComputerInfo.ps1
+.\CollectComputerInfo.ps1 -AllEvents
+
 #>
 param (
     [Parameter(Mandatory = $false)]
@@ -60,7 +65,7 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
     Write-Host -ForegroundColor Green "Checking if Windows Deduplication role is installed..."
     $dedupe = (Get-WindowsFeature -Name FS-Data-Deduplication).installed
     if ($dedupe) {
-        Write-Output "Windows Deduplication role is installed on $env:COMPUTERNAME" | Out-File $logFile -Append
+        Write-Output `n`n`n"Windows Deduplication role is installed on $env:COMPUTERNAME" | Out-File $logFile -Append
         $dedupedVolumes = Get-DedupVolume
         foreach ($volume in $dedupedVolumes) {
             if ($volume.Enabled) {
@@ -70,7 +75,7 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
     }
     else {
         Write-Host -ForegroundColor Red "Windows Deduplication is not installed."
-        Write-Output "Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
+        Write-Output `n`n`n"Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
     }
 }
 else {
@@ -100,7 +105,7 @@ elseif (Get-ChildItem -Path "C:\Windows\System32\manage-bde.exe" -ErrorAction Si
 }
 else {
     Write-Host -ForegroundColor Red "BitLocker is not installed."
-    Write-Output `n "BitLocker is not installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe" | Out-File $logFile -Append
+    Write-Output `n "BitLocker appear to not be installed. The script was unable to check BitLocker status using either the BitLocker PowerShell module or manage-bde.exe" | Out-File $logFile -Append
 }
 
 #######################

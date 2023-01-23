@@ -24,13 +24,6 @@ param (
 
 $ScriptVer = "1.4"
 
-# Self-elevate the script if required
-<#
-$userId = [System.Security.Principal.WindowsIdentity]::GetCurrent()
-$userPrincipal = New-Object System.Security.Principal.WindowsPrincipal($userId)
-$adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
-#>
-
 #######################
 # CREATE LOG FILE DIRECTORIES
 #######################
@@ -59,10 +52,10 @@ Write-Output $Computer | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting installed programs..."
 
-Write-Output "Installed programs according to Win32_Product WMI class" | Sort-Object Name | Out-File $logFile -Append
-$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Format-Table -Autosize | Out-File $logFile -Append
+Write-Output "Installed programs according to Win32_Product WMI class" | Out-File $logFile -Append
+$installedPrograms = Get-CimInstance -Class Win32_Product | Select-Object Name,Vendor,Version,IdentifyingNumber | Sort-Object Name | Format-Table -Autosize | Out-File $logFile -Append
 
-Write-Output "Installed programs according to registry" | Sort-Object Name | Out-File $logFile -Append
+Write-Output "Installed programs according to registry" | Out-File $logFile -Append
 $regPaths = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*", #64-bit programs
     "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" #32-bit programs on 64 bit OS
 
@@ -73,7 +66,7 @@ $regInstalledPrograms= @(
     'UninstallString'
 )
 
-Get-ItemProperty $regPaths | Select-Object $regInstalledPrograms | Format-Table -AutoSize | Out-File $logFile -Append
+Get-ItemProperty $regPaths | Select-Object $regInstalledPrograms | Sort-Object DisplayName | Format-Table -AutoSize | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output `n "Loaded filter drivers" | Out-File $logFile -Append
@@ -84,7 +77,7 @@ $drivers = fltmc.exe | Out-File $logFile -Append
 #######################
 Write-Host -ForegroundColor Green "Collecting disk,volume, and partition information..."
 Write-Output `n "Disks visible to the Operating System" | Out-File $logFile -Append
-$disks = Get-Disk | Out-File $logFile -Append
+$disks = Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
 Write-Output `n "Volumes visible to the Operating System" | Out-File $logFile -Append
 $volumes = Get-Volume | Out-File $logFile -Append
 Write-Output `n "Volume cluster (block) sizes" | Out-File $logFile -Append

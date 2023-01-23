@@ -142,7 +142,7 @@ $IPv6Addresses= Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connecte
 Remove-Item $eventLogPath -Recurse #cleanup any old event logs created by possible pre-mature script failures on prior attempts
 
 if ($allEvents.IsPresent) {
-    Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes"
+    Write-Host -ForegroundColor Green "Collecting all Windows event logs. This may take several minutes."
     $events = wevtutil.exe el
     $i=0
     foreach ($event in $events) {
@@ -198,7 +198,7 @@ $archivePath = Get-ChildItem $logPath\* -Include *.zip | Where-Object {$_.Name -
 #######################
 # CLEANUP STEP
 #######################
-Write-Host -ForegroundColor Red "Cleaning up files in $logPath"
+Write-Host -ForegroundColor Red "Cleaning up temp files in $logPath"
 
 Try{
     Remove-Item $logPath\*.txt

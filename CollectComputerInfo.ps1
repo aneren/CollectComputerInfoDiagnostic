@@ -83,12 +83,12 @@ if (Get-Command -Name Get-WindowsFeature -ErrorAction SilentlyContinue) {
         }
     }
     else {
-        Write-Host -ForegroundColor Magenta "Windows Deduplication is not installed."
+        Write-Host -ForegroundColor Red "Windows Deduplication is not installed."
         Write-Output "Windows Deduplication role is NOT installed on $env:COMPUTERNAME" | Out-File $logFile -Append
     }
 }
 else {
-    Write-Host -ForegroundColor Magenta "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
+    Write-Host -ForegroundColor Red "Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
     Write-Output `n`n`n"Windows Deduplication role is either not installed, or the Get-WindowsFeature cmdlet is not available" | Out-File $logFile -Append
 }
 
@@ -185,7 +185,7 @@ else {
 #######################
 # COMPRESS COLLECTED DATA TO ARCHIVE
 #######################
-Write-Host -ForegroundColor Blue "Compressing collected information into ZIP archive."
+Write-Host -ForegroundColor Magenta "Compressing collected information into ZIP archive."
 
 $dataToCompress = @{
     Path = "$logFile", "$eventLogPath"

@@ -16,6 +16,6 @@ Collects the following information:
 - NIC and IPv4/IPv6 information
 - Windows Application & System event logs in EVTX format along with the LocaleMetaData. Optional -AllEvents parameter to collect all Windows events instead
 
-Running the script:
+Running the script: <br>
 .\CollectComputerInfo.ps1  <br>
 .\CollectComputerInfo.ps1 -allEvents <br>

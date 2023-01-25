@@ -60,7 +60,7 @@ Get-LocalUser | Select-Object Name,Enabled,SID,Description | Out-File $logFile -
 
 Write-Host -ForegroundColor Green "Collecting list of accounts that are in the local administrators group..."
 Write-Output "Accounts in the Local Administrators Group" | Out-File $logFile -Append
-Get-LocalGroupMember -SID "S-1-5-32-544" #S-1-5-32-544 should always be the SID for the Administrators group
+Get-LocalGroupMember -SID "S-1-5-32-544" | Out-File $logFile -Append #S-1-5-32-544 should always be the SID for the Administrators group
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output "Loaded filter drivers" | Out-File $logFile -Append

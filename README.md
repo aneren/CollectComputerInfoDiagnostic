@@ -17,5 +17,5 @@ Collects the following information:
 - Windows Application & System event logs in EVTX format along with the LocaleMetaData. Optional -AllEvents parameter to collect all Windows events instead
 
 Running the script:
-.\CollectComputerInfo.ps1
-.\CollectComputerInfo.ps1 -allEvents
+.\CollectComputerInfo.ps1  <br>
+.\CollectComputerInfo.ps1 -allEvents <br>

@@ -55,7 +55,8 @@ $computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Wind
 Write-Output $Computer | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting local user account name, status, and SID..."
-Get-LocalUser | Select-Object Name,Enabled,SID | Out-File $logFile -Append
+Write-Output "Local user accounts" | Out-File $logFile -Append
+Get-LocalUser | Select-Object Name,Enabled,SID,Description | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output "Loaded filter drivers" | Out-File $logFile -Append

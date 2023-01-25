@@ -26,7 +26,7 @@ param (
     [switch]$allEvents
 )
 
-$ScriptVer = "1.0.3"
+$ScriptVer = "1.0.4"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -46,13 +46,16 @@ if (!(Test-Path -PathType Container $eventLogPath )) {
 }
 
 #######################
-# OPERATING SYSTEM & FLTMC
+# OPERATING SYSTEM, LOCAL USERS, & FLTMC
 #######################
 Write-Host -ForegroundColor Green "Collecting OS information..."
 Write-Output "Computer Name: $env:COMPUTERNAME" | Out-File $logFile -Append
 
 $computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Windowsversion,WindowsEditionId
 Write-Output $Computer | Out-File $logFile -Append
+
+Write-Host -ForegroundColor Green "Collecting local user account name, status, and SID..."
+Get-LocalUser | Select-Object Name,Enabled,SID | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting list of loaded filter drivers..."
 Write-Output "Loaded filter drivers" | Out-File $logFile -Append

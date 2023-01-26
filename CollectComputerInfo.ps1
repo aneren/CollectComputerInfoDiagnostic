@@ -26,7 +26,7 @@ param (
     [switch]$allEvents
 )
 
-$ScriptVer = "1.0.5"
+$ScriptVer = "1.0.6"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -50,9 +50,7 @@ if (!(Test-Path -PathType Container $eventLogPath )) {
 #######################
 Write-Host -ForegroundColor Green "Collecting OS information..."
 Write-Output "Computer Name: $env:COMPUTERNAME" | Out-File $logFile -Append
-
-$computer = Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Windowsversion,WindowsEditionId
-Write-Output $Computer | Out-File $logFile -Append
+Get-ComputerInfo | Select-Object OsName,OsVersion,OsBuildnumber,Windowsversion,WindowsEditionId | Out-File $logFile -Append
 
 Write-Host -ForegroundColor Green "Collecting local user account name, status, and SID..."
 Write-Output "Local user accounts" | Out-File $logFile -Append

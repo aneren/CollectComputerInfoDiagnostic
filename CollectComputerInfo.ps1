@@ -26,7 +26,7 @@ param (
     [switch]$allEvents
 )
 
-$ScriptVer = "1.0.6"
+$ScriptVer = "1.0.8"
 
 #######################
 # CREATE LOG FILE DIRECTORIES
@@ -118,14 +118,13 @@ else {
 # DISK, VOLUME, AND PARTITION INFORMATION
 #######################
 Write-Host -ForegroundColor Green "Collecting disk,volume, and partition information..."
-Write-Output `n "Disks visible to the Operating System" | Out-File $logFile -Append
+Write-Output `n "DISK INFORMATION:" | Out-File $logFile -Append
 Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
-Write-Output `n "Volumes visible to the Operating System" | Out-File $logFile -Append
-Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystemType,AllocationUniteSize,UniqueID | Out-File $logFile -Append
-Write-Output `n "Volume cluster (block) sizes" | Out-File $logFile -Append
-Get-CimInstance -ClassName Win32_Volume | Select-Object DriveLetter,Name,Label,BlockSize | Format-Table -Autosize | Out-File $logFile -Append
-Write-Output `n "Partition information" | Out-File $logFile -Append
-Get-Partition | Out-File $logFile -Append
+Write-Output `n "VOLUME INFORMATION" | Out-File $logFile -Append
+Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystemType,AllocationUnitSize,UniqueID | Format-Table -Wrap | Out-File $logFile -Append
+Write-Output `n "PARTITION INFORMATION" | Out-File $logFile -Append
+#Get-Partition | Out-File $logFile -Append
+Get-Partition | Select-Object DiskPath,PartitionNumber,DriveLetter,Offset,Size,Type,IsBoot,DiskNumber | Format-Table -Wrap | Out-File $logFile -Append
 Write-Output `n | Out-File $logFile -Append
 
 #######################
@@ -133,9 +132,9 @@ Write-Output `n | Out-File $logFile -Append
 #######################
 Write-Host -ForegroundColor Green "Collecting NIC configuration information..."
 Write-Output `n "NIC Configuration (IPv4 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
-Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+Get-NetIPInterface -AddressFamily IPv4 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,NLMtu, @{Name="IPv4 Address";Expression={(Get-NetIPAddress -AddressFamily IPv4)}} | Sort-Object ifIndex | Format-Table -Wrap | Out-File $logFile -Append
 Write-Output `n "NIC Configuration (IPv6 addresses - Connected NICs ONLY)" | Out-File $logFile -Append
-Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table | Out-File $logFile -Append
+Get-NetIPInterface -AddressFamily IPv6 -ConnectionState Connected | Select-Object ifIndex,InterfaceAlias,NLMtu, @{Name="IPv6 Address";Expression={(Get-NetIPAddress -AddressFamily IPv6)}} | Sort-Object ifIndex | Format-Table -Wrap | Out-File $logFile -Append
 
 #######################
 # INSTALLED PROGRAMS
@@ -235,6 +234,6 @@ Finally {
 }
 
 Write-Host -ForegroundColor Yellow "Script has completed. Please upload the ZIP file located at this location: $archivePath"
-Explorer.exe $logPath
+Invoke-Item $logPath
 
 

@@ -121,7 +121,7 @@ Write-Host -ForegroundColor Green "Collecting disk,volume, and partition informa
 Write-Output `n "Disks visible to the Operating System" | Out-File $logFile -Append
 Get-Disk | Format-Table -Autosize | Out-File $logFile -Append
 Write-Output `n "Volumes visible to the Operating System" | Out-File $logFile -Append
-Get-Volume | Out-File $logFile -Append
+Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystemType,AllocationUniteSize,UniqueID | Out-File $logFile -Append
 Write-Output `n "Volume cluster (block) sizes" | Out-File $logFile -Append
 Get-CimInstance -ClassName Win32_Volume | Select-Object DriveLetter,Name,Label,BlockSize | Format-Table -Autosize | Out-File $logFile -Append
 Write-Output `n "Partition information" | Out-File $logFile -Append

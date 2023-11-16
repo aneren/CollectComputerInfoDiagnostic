@@ -1,8 +1,6 @@
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 <#
-Written by Paul Loewenkamp
-
 Script must be ran from an elevated PowerShell session or some data may not be properly collected. 
 
 This script collects basic information about Windows computers in order to facilitate more efficient troubleshooting. It collects the following:
@@ -19,7 +17,6 @@ This script collects basic information about Windows computers in order to facil
 Execute script by navigating to the folder containing it inside of an elevated PowerShell session, and then calling it using either method below:
 .\CollectComputerInfo.ps1
 .\CollectComputerInfo.ps1 -AllEvents
-
 #>
 param (
     [Parameter(Mandatory = $false)]

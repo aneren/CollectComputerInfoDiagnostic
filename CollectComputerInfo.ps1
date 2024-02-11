@@ -30,7 +30,7 @@ $ScriptVer = "1.0.8"
 #######################
 $logPath = "C:\Temp\CollectComputerInfo"
 $logFile = "$logPath\CollectComputerInfo_$ScriptVer-$env:COMPUTERNAME-$(Get-Date -Format yyyy-MM-dd_HH-mm-ss).txt"
-$eventLogPath = $logPath + '\' + 'EventLogs'
+$eventLogPath = $logPath + '\EventLogs'
 
 if (!(Test-Path -PathType Container $logPath )) {
     Write-Host -ForegroundColor Yellow "C:\Temp\CollectComputerInfo folder is not found. Creating it to store temporary files."
